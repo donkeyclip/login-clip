@@ -1,29 +1,29 @@
-import { clip } from "../clip/clip";
-import Player from "@donkeyclip/motorcortex-player";
-import initParamsApply from "./scripts/initParamsApply";
 import { utils } from "@donkeyclip/motorcortex";
+import Player from "@donkeyclip/motorcortex-player";
+import { clip } from "../clip/clip";
 import clipId from "../clip/id";
 import initParams from "../clip/initParams";
-import * as base64 from "base-64";
+import initParamsApply from "./scripts/initParamsApply";
 const liveDef = clip.exportLiveDefinition();
 liveDef.props.id = clip.id;
 
+let player;
 const clipDef = clip.exportDefinition();
 window.addEventListener("message", (event) => {
   if (event.data.what === "initParamsChange") {
     const newLiveDef = initParamsApply(liveDef, event.data.initParams);
     document.getElementById("projector").innerHTML = "<div id='clip'></div>";
-    const clipContainer = document.getElementById("clip");
+    const clipContainerNew = document.getElementById("clip");
     // set clip container's dimensions
-    clipContainer.style.width = clip.props.containerParams.width;
-    clipContainer.style.height = clip.props.containerParams.height;
-    newLiveDef.props.host = clipContainer;
+    clipContainerNew.style.width = clip.props.containerParams.width;
+    clipContainerNew.style.height = clip.props.containerParams.height;
+    newLiveDef.props.host = clipContainerNew;
     const newclip = utils.clipFromDefinition(newLiveDef);
     if (newclip.nonBlockingErrorClip) {
       // if the initParams validation has failed
       return alert("Error with init params");
     }
-    window.mc = { Player: new Player({ clip: newclip }) };
+    player = new Player({ clip: newclip });
   }
 });
 
@@ -42,7 +42,7 @@ for (const i in params) {
 let playerOptions = {};
 if (searchOptions.settings) {
   try {
-    playerOptions = JSON.parse(base64.decode(searchOptions.settings));
+    playerOptions = JSON.parse(atob(searchOptions.settings));
   } catch (e) {
     console.error("Invalid options:", searchOptions.settings);
   }
@@ -60,23 +60,21 @@ window.top.postMessage(
   "*"
 );
 
-window.mc = {
-  player: new Player({
-    clip,
-    pointerEvents: true,
-    ...playerOptions,
-    onMillisecondChange: (ms) => {
-      window.top.postMessage(
-        {
-          what: "msChanged",
-          millisecond: ms,
-        },
-        "*"
-      );
-    },
-  }),
-};
+player = new Player({
+  clip,
+  pointerEvents: true,
+  ...playerOptions,
+  onMillisecondChange: (ms) => {
+    window.top.postMessage(
+      {
+        what: "msChanged",
+        millisecond: ms,
+      },
+      "*"
+    );
+  },
+});
 
 if (searchOptions.initParams) {
-  window.mc.player.changeInitParams(initParams[searchOptions.initParams].value);
+  player.changeInitParams(initParams[searchOptions.initParams].value);
 }
