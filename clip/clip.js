@@ -3,49 +3,6 @@ import { HTMLClip, loadPlugin } from "@donkeyclip/motorcortex";
 import ThreeDefinition from "@donkeyclip/motorcortex-threejs";
 const threejs = loadPlugin(ThreeDefinition);
 
-const torus = {
-  class: ["torus"],
-  geometry: { type: "TorusGeometry", parameters: [10, 1.5, 5, 100] },
-  material: {
-    type: "MeshPhongMaterial",
-    parameters: [
-      {
-        color: "#ff5722",
-        flatShading: false,
-        shininess: 2,
-      },
-    ],
-  },
-  settings: { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 } },
-};
-const torusArray = [];
-
-const randomMatrix = [];
-for (let i = 0; i < 10; i++) {
-  const r = Math.random();
-  let random = 4;
-  if (r < 0.25) random = 1;
-  else if (r < 0.5) random = 2;
-  else if (r < 0.75) random = 3;
-  randomMatrix.push(random);
-
-  const torusClone = JSON.parse(JSON.stringify(torus));
-  torusClone.id = "torus_" + i;
-
-  // position
-  torusClone.settings.position.x =
-    Math.random() * 20 * (Math.random() > 0.5 ? -1 : 1);
-  torusClone.settings.position.y =
-    Math.random() * 20 * (Math.random() > 0.5 ? -1 : 1);
-  torusClone.settings.position.z =
-    Math.random() * 30 * (Math.random() > 0.5 ? -1 : 1);
-
-  // rotation
-  torusClone.settings.rotation.x = random * 3.14;
-  torusClone.settings.rotation.y = random * 3.14;
-  torusClone.settings.rotation.z = random * 3.14;
-  torusArray.push(torusClone);
-}
 export const clip = new HTMLClip({
   html: `
     <div class="container"></div>`,
@@ -76,17 +33,56 @@ export const clip = new HTMLClip({
   // initParams: initParams[1].value,
 });
 
+const instances = [];
+const randomMatrix = [];
+const count = 20;
+for (let i = 0; i < count; i++) {
+  const r = Math.random();
+  let random = 4;
+  if (r < 0.25) random = 1;
+  else if (r < 0.5) random = 2;
+  else if (r < 0.75) random = 3;
+  randomMatrix.push(random);
+
+  // position
+  instances.push([
+    i,
+    [
+      Math.random() * 20 * (Math.random() > 0.5 ? -1 : 1),
+      Math.random() * 20 * (Math.random() > 0.5 ? -1 : 1),
+      Math.random() * 20 * (Math.random() > 0.5 ? -1 : 1),
+    ],
+    [random * 3.14, random * 3.14, random * 3.14],
+  ]);
+}
+
+const instance = {
+  id: "instance",
+  geometry: { type: "TorusBufferGeometry", parameters: [10, 1.5, 32, 100] },
+  material: {
+    type: "MeshLambertMaterial",
+    parameters: [
+      {
+        color: "#fff",
+        shininess: 2,
+      },
+    ],
+  },
+  settings: {
+    count,
+    instance: instances,
+  },
+  class: ["instance"],
+};
+
 const threeclip = new threejs.Clip(
   {
     renderers: {
       type: "WebGLRenderer",
-      parameters: [{ alpha: true, antialias: true }],
+      parameters: [{ powerPreference: "high-performance" }],
       settings: {
-        shadowMap: {
-          enabled: true,
-        },
         setClearColor: ["#111"],
-        physicallyCorrectLights: true,
+        // physicallyCorrectLights: true,
       },
     },
     scenes: {},
@@ -94,20 +90,35 @@ const threeclip = new threejs.Clip(
       {
         id: "light_purple",
         type: "AmbientLight",
-        parameters: ["#777", 1],
+        parameters: ["#111", 0.2],
         settings: {
           position: { set: [50, 0, 0] },
         },
       },
       {
-        id: "light_spot",
-        type: "SpotLight",
-        parameters: ["#fff", 80],
+        id: "light_spot_blue",
+        type: "PointLight",
+        parameters: ["#f00", 1],
         settings: {
-          castShadow: true,
-          position: { set: [50, 0, 10] },
+          position: { set: [50, 0, 0] },
         },
       },
+      {
+        id: "light_spot_pink",
+        type: "PointLight",
+        parameters: ["#00f", 1],
+        settings: {
+          position: { set: [-50, 0, 0] },
+        },
+      },
+      // {
+      //   id: "light_spot_pink",
+      //   type: "SpotLight",
+      //   parameters: ["#9b657b", 1],
+      //   settings: {
+      //     position: { set: [-50, 0, 0] },
+      //   },
+      // },
     ],
     cameras: {
       id: "camera_1",
@@ -118,8 +129,8 @@ const threeclip = new threejs.Clip(
         near: 1,
       },
     },
-    entities: torusArray,
-    controls: { enable: true, enableEvents: true, maxPolarAngle: Math.PI },
+    entities: [instance],
+    controls: { enable: true, enableEvents: false, maxPolarAngle: Math.PI },
   },
   {
     selector: ".container",
@@ -127,23 +138,55 @@ const threeclip = new threejs.Clip(
   }
 );
 
-for (let i = 0; i < 10; i++) {
-  const torusAnimation = new threejs.ObjectAnimation(
-    {
-      animatedAttrs: {
-        rotation: {
-          x: randomMatrix[i] * 3.14 * 2,
-          y: randomMatrix[i] * 3.14 * 2,
-          z: randomMatrix[i] * 3.14 * 2,
-        },
-      },
-    },
-    {
-      selector: "!#torus_" + i,
-      duration: 50000,
-    }
-  );
-  threeclip.addIncident(torusAnimation, 0);
+const newInstances = JSON.parse(JSON.stringify(instances));
+for (let i = 0; i < newInstances.length; i++) {
+  const rotate = randomMatrix[i] * 3.14 * 2;
+  newInstances[i][2] = [rotate, rotate, rotate];
 }
 
+const rotation = new threejs.ObjectAnimation(
+  {
+    animatedAttrs: {
+      instance: newInstances,
+    },
+  },
+  {
+    selector: "!#instance",
+    duration: 6000,
+  }
+);
+threeclip.addIncident(rotation, 0);
+
+// const rotation = new threejs.ObjectAnimation(
+//   {
+//     animatedAttrs: {
+//       instance: [
+//         [0, [-10, 0, 0], [3.14, 0, 0]],
+//         [1, [0, -10, 0], [0, 3.14, 0]],
+//         [2, [10, 0, 0], [3.14, 0, 3.14]],
+//       ],
+//     },
+//   },
+//   {
+//     selector: "!#instance",
+//     duration: 2000,
+//   }
+// );
+// const rotation1 = new threejs.ObjectAnimation(
+//   {
+//     animatedAttrs: {
+//       instance: [
+//         [0, [0, 0, 0], [6.28, 0, 0]],
+//         [1, [0, 0, 0], [0, 6.28, 0]],
+//         [2, [0, 0, 0], [6.28, 6.28, 0]],
+//       ],
+//     },
+//   },
+//   {
+//     selector: "!#instance",
+//     duration: 2000,
+//   }
+// );
+threeclip.addIncident(rotation, 0);
+// threeclip.addIncident(rotation1, 2000);
 clip.addIncident(threeclip, 0);

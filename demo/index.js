@@ -9,6 +9,10 @@ const liveDef = clip.exportLiveDefinition();
 liveDef.props.id = clip.id;
 
 const clipDef = clip.exportDefinition();
+console.log(clipDef.incidents);
+for (const i in clipDef.incidents) {
+  clipDef.incidents[i].leaf.version = "2.3.1";
+}
 window.addEventListener("message", (event) => {
   if (event.data.what === "initParamsChange") {
     const newLiveDef = initParamsApply(liveDef, event.data.initParams);
