@@ -2,13 +2,11 @@ export default [
   {
     name: "Default",
     value: {
-      color: "white",
-    },
-  },
-  {
-    name: "Red Color",
-    value: {
-      color: "red",
+      hoopColor: "#fff",
+      backgroundColor:"#000",
+      light1:"#ff3da2",
+      light2:"#d83017",
+      light3:"#2e35ff"
     },
   },
 ];

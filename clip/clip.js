@@ -1,6 +1,8 @@
 import { HTMLClip, loadPlugin } from "@donkeyclip/motorcortex";
 import ThreeDefinition from "@donkeyclip/motorcortex-threejs";
 const threejs = loadPlugin(ThreeDefinition);
+import initParams from "./initParams";
+import initParamsValidationRules from "./initParamsValidationRules";
 
 export const clip = new HTMLClip({
   html: `
@@ -16,6 +18,8 @@ export const clip = new HTMLClip({
   }
   `,
   host: document.getElementById("clip"),
+  initParamsValidationRules,
+  initParams:initParams[0].value,
   containerParams: {
     width: "1920px",
     height: "1080px",
@@ -46,7 +50,7 @@ const instance = {
     type: "MeshLambertMaterial",
     parameters: [
       {
-        color: "#fff",
+        color: "@initParams.hoopColor",
         shininess: 2,
       },
     ],
@@ -64,7 +68,7 @@ const threeclip = new threejs.Clip(
       type: "WebGLRenderer",
       parameters: [{ powerPreference: "high-performance" }],
       settings: {
-        setClearColor: ["#000"],
+        setClearColor: ["@initParams.backgroundColor"],
       },
     },
     scenes: {},
@@ -72,7 +76,7 @@ const threeclip = new threejs.Clip(
       {
         id: "light_spot_pink",
         type: "PointLight",
-        parameters: ["#ff3da2"],
+        parameters: ["@initParams.light1"],
         settings: {
           position: { set: [-30, 0, 10] },
         },
@@ -80,7 +84,7 @@ const threeclip = new threejs.Clip(
       {
         id: "ambient_light",
         type: "AmbientLight",
-        parameters: ["#d83017", 0.1],
+        parameters: ["@initParams.light2", 0.1],
         settings: {
           position: { set: [0, 0, 0] },
         },
@@ -88,7 +92,7 @@ const threeclip = new threejs.Clip(
       {
         id: "light_spot_blue",
         type: "PointLight",
-        parameters: ["#2e35ff"],
+        parameters: ["@initParams.light3"],
         settings: {
           position: { set: [30, -0, 10] },
         },

@@ -17,7 +17,7 @@
     "start": "npm run build & webpack serve --mode=development --config ./demo/webpack.config.js",
     "test": "HERE GOES YOUR TEST TASK",
     "test:prod": "npm run lint",
-    "render": "node node_modules/dclip-video-renderer"
+    "render": "node node_modules/@donkeyclip/video-renderer"
   },
   "keywords": [
     "motorcortex",
@@ -40,12 +40,12 @@
     "@babel/plugin-transform-react-jsx": "7.14.9",
     "@babel/preset-env": "7.15.8",
     "@donkeyclip/motorcortex-player": "2.6.1",
+    "@donkeyclip/video-renderer": "1.4.2",
     "babel-eslint": "10.1.0",
     "babel-loader": "8.2.2",
     "concurrently": "6.3.0",
     "core-js": "^3.18.3",
     "css-loader": "^6.4.0",
-    "dclip-video-renderer": "1.3.0",
     "eslint": "7.32.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-config-standard": "16.0.3",
