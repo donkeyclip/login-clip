@@ -29,7 +29,7 @@
     }
   },
   "dependencies": {
-    "@donkeyclip/motorcortex": "8.0.4",
+    "@donkeyclip/motorcortex": "^9.5.4",
     "@donkeyclip/motorcortex-threejs": "^3.0.0",
     "babel-polyfill": "^6.26.0"
   },
