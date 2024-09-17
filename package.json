@@ -42,7 +42,7 @@
     "@donkeyclip/motorcortex-player": "2.6.1",
     "@donkeyclip/video-renderer": "1.4.2",
     "babel-eslint": "10.1.0",
-    "babel-loader": "8.2.2",
+    "babel-loader": "8.4.1",
     "concurrently": "6.3.0",
     "core-js": "^3.18.3",
     "css-loader": "^6.4.0",
